@@ -15,26 +15,35 @@ services:
 
   user-svc:
     image: "user-svc"
-    build: .
+    build:
+      context: .
+      dockerfile: ./ops/Dockerfile
     container_name: "user-svc"
     ports:
-      - "8080:8080"
-#    volumes:
-#      - ".:/app/service"
+      - "8080:80"
+    volumes:
+      - ".:/app/service"
+    networks:
+      - user-svc-net
 
   user-svc-db:
     image: "postgres:latest"
     container_name: user-svc-db
-#    volumes:
-#      - user-svc-db-volume:/var/lib/postgresql/data
+    volumes:
+      - user-svc-db-volume:/var/lib/postgresql/data
     ports:
-      - "8091:5432"
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: crud-service
-#
-#volumes:
-#  user-svc-db-volume:
-#    name: user-svc-db-volume
-#    driver: local
+      - "8085:5432"
+    env_file:
+      - "./ops/service.env"
+    networks:
+      - user-svc-net
+
+volumes:
+  user-svc-db-volume:
+    name: user-svc-db-volume
+    driver: local
+
+networks:
+  user-svc-net:
+    name: user-svc-net
+    driver: bridge
