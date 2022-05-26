@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  rabbitmq3:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      # AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'
+
+  user-svc:
+    image: "user-svc"
+    build: .
+    container_name: "user-svc"
+    ports:
+      - "8080:8080"
+#    volumes:
+#      - ".:/app/service"
+
+  user-svc-db:
+    image: "postgres:latest"
+    container_name: user-svc-db
+#    volumes:
+#      - user-svc-db-volume:/var/lib/postgresql/data
+    ports:
+      - "8091:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: crud-service
+#
+#volumes:
+#  user-svc-db-volume:
+#    name: user-svc-db-volume
+#    driver: local
